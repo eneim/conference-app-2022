@@ -30,6 +30,7 @@ jobs:
         id: download-artifact
         uses: dawidd6/action-download-artifact@v2
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: UpdateScreenshots.yml
           name: screenshots
           path: preview-screenshots/src/test/snapshots/images
