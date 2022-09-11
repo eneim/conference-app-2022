@@ -49,7 +49,7 @@ jobs:
       - name: Setup CML
         uses: iterative/setup-cml@v1
 
-      - name: Comment PR
+      - name: Comment PR with Preview
         if: ${{ hashFiles('preview-screenshots/out/failures/*.png') != '' }}
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
         env:
