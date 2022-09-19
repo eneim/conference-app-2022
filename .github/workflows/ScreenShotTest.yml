@@ -60,7 +60,8 @@ jobs:
         run: |
           cd preview-screenshots/src/test/snapshots/images
           echo "There are differences in Compose previews." > report.md
-          cml publish $(ls | head -n 1) --md >> report.md
+          echo "[](https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG)" > report.md
+          # cml publish $(ls | head -n 1) --md >> report.md
           echo ::set-output name=comment::$(cat report.md)
 
       - name: Comment PR
