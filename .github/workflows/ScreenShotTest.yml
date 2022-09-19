@@ -62,10 +62,13 @@ jobs:
         run: |
           cp -a preview-screenshots/out/failures/. temp_docs/docs/screenshots/
           cd temp_docs/
-          git add .
-          git commit -m "Upload screenshots to github page."
-          git push
-          sleep 3 # wait 3 minutes for github page to update
+          if ! git diff --exit-code --quiet
+          then
+            git add . --update
+            git commit -m "Upload screenshots to github page."
+            git push
+            sleep 3 # wait 3 minutes for github page to update
+          fi
           cd ..
           cd preview-screenshots/out/failures
           echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= "https://eneim.github.io/conference-app-2022/screenshots/" + .')
