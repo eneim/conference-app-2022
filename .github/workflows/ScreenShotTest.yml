@@ -47,8 +47,8 @@ jobs:
           name: scrennshot-test-results
           path: preview-screenshots/out/failures
 
-      - name: Setup CML
-        uses: iterative/setup-cml@v1
+      # - name: Setup CML
+      #   uses: iterative/setup-cml@v1
 
       - name: Build PR Comment with Preview
         id: pr_comment
@@ -60,8 +60,7 @@ jobs:
         run: |
           cd preview-screenshots/src/test/snapshots/images
           echo "There are differences in Compose previews." > report.md
-          echo "[](https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG)" > report.md
-          # cml publish $(ls | head -n 1) --md >> report.md
+          echo "![](https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG)" > report.md
           echo ::set-output name=comment::$(cat report.md)
 
       - name: Comment PR
