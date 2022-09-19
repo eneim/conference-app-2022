@@ -50,7 +50,7 @@ jobs:
       - name: Checkout the docs branch
         uses: actions/checkout@v3
         with:
-          path: temp-docs
+          path: temp_docs
           ref: docs
 
       - name: Commit the screenshot to the branch
@@ -59,8 +59,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp -a preview-screenshots/src/test/snapshots/images/. temp-docs/conference-app-2022/docs/screenshots/
-          cd temp-docs/conference-app-2022/
+          ls -al temp_docs
+          cp -a preview-screenshots/src/test/snapshots/images/. temp_docs/conference-app-2022/docs/screenshots/
+          cd temp_docs/conference-app-2022/
           git add .
           git commit -m "Upload screenshots to github page."
           git push
