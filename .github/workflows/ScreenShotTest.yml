@@ -62,7 +62,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ls -al temp_docs
-          cp -a preview-screenshots/src/test/snapshots/images/. temp_docs/conference-app-2022/docs/screenshots/
+          ls -al preview-screenshots/out/failures/
+          cp -a preview-screenshots/out/failures/. temp_docs/conference-app-2022/docs/screenshots/
           cd temp_docs/conference-app-2022/
           git add .
           git commit -m "Upload screenshots to github page."
