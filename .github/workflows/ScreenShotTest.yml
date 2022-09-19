@@ -8,12 +8,6 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1.0.4
-
       - name: Commit the screenshot to the branch
         id: docs_images
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
@@ -28,7 +22,7 @@ jobs:
         # if: ${{ hashFiles('preview-screenshots/out/failures/*.png') != '' }}
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
         env:
-          ALL_SCREENSHOTS: ${{ fromJSON(steps.docs_images.outputs.images) }}
+          ALL_SCREENSHOTS: ${{ toJSON(steps.docs_images.outputs.images) }}
         # Build a comment message with the image from snapshot images for demo purpose.
         run: |
           echo $ALL_SCREENSHOTS
