@@ -47,20 +47,38 @@ jobs:
           name: scrennshot-test-results
           path: preview-screenshots/out/failures
 
-      # - name: Setup CML
-      #   uses: iterative/setup-cml@v1
+      - name: Checkout the docs branch
+        uses: actions/checkout@v3
+        with:
+          path: temp-docs
+          ref: docs
+
+      - name: Commit the screenshot to the branch
+        id: docs_images
+        continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp -a preview-screenshots/src/test/snapshots/images/. temp-docs/conference-app-2022/docs/screenshots/
+          cd temp-docs/conference-app-2022/
+          git add .
+          git commit -m "Upload screenshots to github page."
+          git push
+          sleep 3
+          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= "https://eneim.github.io/conference-app-2022/screenshots/" + .')
 
       - name: Build PR Comment with Preview
         id: pr_comment
         # if: ${{ hashFiles('preview-screenshots/out/failures/*.png') != '' }}
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
         env:
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGES: ${{ fromJSON(steps.docs_images.outputs.images) }}
         # Build a comment message with the image from snapshot images for demo purpose.
         run: |
-          cd preview-screenshots/src/test/snapshots/images
           echo "There are differences in Compose previews." > report.md
-          echo "![](https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG)" > report.md
+          for image in ${IMAGES[@]:0:3}; 
+            do echo "![]($image)" > report.md;
+          done
           echo ::set-output name=comment::$(cat report.md)
 
       - name: Comment PR
