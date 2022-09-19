@@ -69,7 +69,7 @@ jobs:
           sleep 3
           cd ..
           cd preview-screenshots/out/failures
-          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= "https://eneim.github.io/conference-app-2022/screenshots/" + .')
+          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= "https://eneim.github.io/conference-app-2022/screenshots/" + .' | jq tostring)
 
       - name: Build PR Comment with Preview
         id: pr_comment
