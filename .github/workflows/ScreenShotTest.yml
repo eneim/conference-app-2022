@@ -26,49 +26,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Download Screenshots
-        id: download-artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: UpdateScreenshots.yml
-          name: screenshots
-          path: preview-screenshots/src/test/snapshots/images
-
-      - name: Run screenshot tests
-        id: verifyPaparazziDebug
-        continue-on-error: true
-        run: ./gradlew preview-screenshots:verifyPaparazziDebug
-
-      - name: Error Screenshot tests
-        if: ${{ hashFiles('preview-screenshots/out/failures/*.png') != '' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: scrennshot-test-results
-          path: preview-screenshots/out/failures
-
-      - name: Checkout the docs branch
-        id: checkout_docs
-        uses: actions/checkout@v3
-        with:
-          path: temp_docs
-          ref: docs
-
       - name: Commit the screenshot to the branch
         id: docs_images
-        if: steps.checkout_docs.outcome == 'success'
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp -a preview-screenshots/out/failures/. temp_docs/docs/screenshots/
-          cd temp_docs/
-          git add .
-          git commit -m "Upload screenshots to github page."
-          git push
-          sleep 3
-          cd ..
-          cd preview-screenshots/out/failures
           # echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= "https://eneim.github.io/conference-app-2022/screenshots/" + .')
           echo ::set-output name=images::["https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG"]
 
@@ -81,8 +44,9 @@ jobs:
         # Build a comment message with the image from snapshot images for demo purpose.
         run: |
           echo "There are differences in Compose previews." > report.md
-          for image in ${ALL_SCREENSHOTS[@]:0:3}; 
-            do echo "![]($image)" > report.md;
+          for image in ${ALL_SCREENSHOTS[@]} 
+          do 
+            echo "![]($image)" > report.md
           done
           echo ::set-output name=comment::$(cat report.md)
 
