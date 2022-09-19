@@ -10,11 +10,11 @@ jobs:
     steps:
       - name: Commit the screenshot to the branch
         id: docs_images
-        if: steps.checkout_docs.outcome == 'success'
+        # if: steps.checkout_docs.outcome == 'success'
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
         run: |
           # echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= "https://eneim.github.io/conference-app-2022/screenshots/" + .')
-          echo ::set-output name=images::"[\"https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG\",\"https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG\"]"
+          echo '::set-output name=images::["https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG","https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG"]'
 
       - name: Build PR Comment with Preview
         id: pr_comment
@@ -22,12 +22,12 @@ jobs:
         # if: ${{ hashFiles('preview-screenshots/out/failures/*.png') != '' }}
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
         env:
-          ALL_SCREENSHOTS: ${{ fromJSON(steps.docs_images.outputs.images) }}
+          ALL_SCREENSHOTS: ${{ steps.docs_images.outputs.images }}
         # Build a comment message with the image from snapshot images for demo purpose.
         run: |
           echo "There are differences in Compose previews." > report.md
-          for image in ${ALL_SCREENSHOTS[@]:0:3}; 
-            do echo "![]($image)" > report.md;
+          echo "$ALL_SCREENSHOTS" | jq -r '.[]' | while read -r image; do 
+            echo "![]($image)" > report.md
           done
           echo ::set-output name=comment::$(cat report.md)
 
