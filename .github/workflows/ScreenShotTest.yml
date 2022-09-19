@@ -48,6 +48,7 @@ jobs:
           path: preview-screenshots/out/failures
 
       - name: Checkout the docs branch
+        id: checkout_docs
         uses: actions/checkout@v3
         with:
           path: temp_docs
@@ -55,6 +56,7 @@ jobs:
 
       - name: Commit the screenshot to the branch
         id: docs_images
+        if: steps.checkout_docs.outcome == 'success'
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
