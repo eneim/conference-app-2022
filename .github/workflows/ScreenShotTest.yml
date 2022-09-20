@@ -63,21 +63,16 @@ jobs:
         run: |
           cd temp_docs/
           git switch -C $BRANCH_NAME
-          mkdir -p docs/screenshots
-          cp -a ../preview-screenshots/out/failures/. docs/screenshots/
-          if ! git diff --exit-code --quiet
-          then
-            git config push.default current
-            git config remote.pushDefault origin
-            git add . --update
-            git commit -m "Upload screenshots to github page."
-            git push
-            sleep 3 # wait 3 minutes for github page to update
-          fi
+          mkdir -p docs/
+          cp -a ../preview-screenshots/out/failures/. docs/
+          git config --global push.default current
+          git config --global remote.pushDefault origin
+          git add . --update
+          git commit -m "Upload screenshots to github page."
+          git push
           cd ..
           cd preview-screenshots/out/failures
-          echo "IMAGE_PATH=https://raw.githubusercontent.com/eneim/conference-app-2022/$BRANCH_NAME/docs/screenshots/" >> $GITHUB_ENV
-          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= ${{ env.IMAGE_PATH }} + .')
+          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r --arg IMAGE_PATH "https://raw.githubusercontent.com/eneim/conference-app-2022/$BRANCH_NAME/docs/" '.[] |= $IMAGE_PATH + .')
 
       - name: Build PR Comment with Preview
         id: pr_comment

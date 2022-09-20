@@ -1,9 +1,9 @@
 name: Format
 
 on:
-  pull_request:
-    paths-ignore:
-      - 'app-ios/**'
+  # pull_request:
+  #   paths-ignore:
+  #     - 'app-ios/**'
 
 concurrency:
   group: format-${{ github.ref }}
