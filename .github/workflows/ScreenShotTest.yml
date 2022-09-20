@@ -63,16 +63,16 @@ jobs:
         run: |
           cd temp_docs/
           git switch -C $BRANCH_NAME
-          mkdir -p docs/
-          cp -a ../preview-screenshots/out/failures/. docs/
+          mkdir -p docs/screenshots/
+          cp -a ../preview-screenshots/out/failures/. docs/screenshots/
+          git add .
           git config --global push.default current
           git config --global remote.pushDefault origin
-          git add . --update
           git commit -m "Upload screenshots to github page."
-          git push
+          git push -f
           cd ..
           cd preview-screenshots/out/failures
-          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r --arg IMAGE_PATH "https://raw.githubusercontent.com/eneim/conference-app-2022/$BRANCH_NAME/docs/" '.[] |= $IMAGE_PATH + .')
+          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r --arg IMAGE_PATH "https://raw.githubusercontent.com/eneim/conference-app-2022/$BRANCH_NAME/docs/screenshots/" '.[] |= $IMAGE_PATH + .')
 
       - name: Build PR Comment with Preview
         id: pr_comment
