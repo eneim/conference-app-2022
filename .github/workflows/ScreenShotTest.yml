@@ -47,23 +47,28 @@ jobs:
           name: screenshot-test-results
           path: preview-screenshots/out/failures
 
-      - name: Checkout the docs branch
+      - name: Checkout the companion branch
         id: checkout_docs
         if: ${{ hashFiles('preview-screenshots/out/failures/*.png') != '' }}
         uses: actions/checkout@v3
         with:
           path: temp_docs
-          ref: docs
 
       - name: Commit the screenshot to the branch
         id: docs_images
         if: steps.checkout_docs.outcome == 'success'
         continue-on-error: true # https://github.com/DroidKaigi/conference-app-2022/issues/497
+        env:
+          BRANCH_NAME: companion_${{ github.head_ref || github.ref_name }}
         run: |
-          cp -a preview-screenshots/out/failures/. temp_docs/docs/screenshots/
           cd temp_docs/
+          git switch -C $BRANCH_NAME
+          mkdir -p docs/screenshots
+          cp -a ../preview-screenshots/out/failures/. docs/screenshots/
           if ! git diff --exit-code --quiet
           then
+            git config push.default current
+            git config remote.pushDefault origin
             git add . --update
             git commit -m "Upload screenshots to github page."
             git push
@@ -71,8 +76,8 @@ jobs:
           fi
           cd ..
           cd preview-screenshots/out/failures
-          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= "https://eneim.github.io/conference-app-2022/screenshots/" + .')
-          # echo '::set-output name=images::["https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG","https://eneim.github.io/conference-app-2022/screenshots/IMG_7796.JPG"]'
+          echo "IMAGE_PATH=https://raw.githubusercontent.com/eneim/conference-app-2022/$BRANCH_NAME/docs/screenshots/" >> $GITHUB_ENV
+          echo ::set-output name=images::$(ls | jq -R -s -c 'split("\n")[:-1]' | jq -r '.[] |= ${{ env.IMAGE_PATH }} + .')
 
       - name: Build PR Comment with Preview
         id: pr_comment
@@ -83,7 +88,8 @@ jobs:
           ALL_SCREENSHOTS: ${{ steps.docs_images.outputs.images }}
         # Build a comment message with the image from snapshot images for demo purpose.
         run: |
-          echo "There are differences in Compose previews." > report.md
+          echo "There are differences in Compose previews:" > report.md
+          echo >> report.md # A blank line.
           echo "$ALL_SCREENSHOTS" | jq -r '.[]' | while read -r image; do 
             echo "![]($image)" >> report.md
           done
